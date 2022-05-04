@@ -1,10 +1,11 @@
-package com.example.sbootatomcongresso.controller;
+package com.example.sbootatomcongresso.api.controller;
 
-import com.example.sbootatomcongresso.config.URLProvider;
-import com.example.sbootatomcongresso.domain.Evento;
-import com.example.sbootatomcongresso.domain.Ficha;
+import com.example.sbootatomcongresso.domain.model.Evento;
+import com.example.sbootatomcongresso.domain.model.Ficha;
+import com.example.sbootatomcongresso.infrastructure.model.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +19,10 @@ public class EventoController {
 
     private List<Evento> eventos;
     Logger logger = LoggerFactory.getLogger(EventoController.class);
+    private URL url;
 
-    private URLProvider urlProvider;
-
-    public EventoController(URLProvider urlProvider){
-        this.urlProvider = urlProvider;
-
+    public EventoController(@Qualifier("eureka") URL url){
+        this.url = url;
         this.eventos = List.of(
                 new Evento("MR01","Mesa redonda",10L),
                 new Evento("PA01","Palestra",3L));
@@ -36,11 +35,11 @@ public class EventoController {
 
     @PostMapping
     public ResponseEntity credenciar(@RequestBody Ficha ficha){
-        logger.info("credenciar no microservice: "+urlProvider.mountResourceUrlFromServiceDiscovery());
+        logger.info("credenciar no microservice: "+ url.montar("ATOMFICHA","/atomficha/api/fichas"));
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<Ficha> request = new HttpEntity<>(ficha);
         ResponseEntity response = restTemplate
-                .postForEntity(urlProvider.mountResourceUrlFromServiceDiscovery(), request, Boolean.class);
+                .postForEntity(url.montar("ATOMFICHA","/atomficha/api/fichas"), request, Boolean.class);
         return response;
     }
 
