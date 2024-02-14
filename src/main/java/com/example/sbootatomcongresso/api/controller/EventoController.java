@@ -1,15 +1,13 @@
 package com.example.sbootatomcongresso.api.controller;
 
+import com.example.sbootatomcongresso.domain.service.AtomFichaService;
 import com.example.sbootatomcongresso.domain.model.Evento;
 import com.example.sbootatomcongresso.domain.model.Ficha;
-import com.example.sbootatomcongresso.infrastructure.model.URL;
+import com.example.sbootatomcongresso.infrastructure.exception.DataNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -19,10 +17,10 @@ public class EventoController {
 
     private List<Evento> eventos;
     Logger logger = LoggerFactory.getLogger(EventoController.class);
-    private URL url;
+    private final AtomFichaService atomFichaService;
 
-    public EventoController(@Qualifier("eureka") URL url){
-        this.url = url;
+    public EventoController(AtomFichaService atomFichaService){
+        this.atomFichaService = atomFichaService;
         this.eventos = List.of(
                 new Evento("MR01","Mesa redonda",10L),
                 new Evento("PA01","Palestra",3L));
@@ -33,14 +31,18 @@ public class EventoController {
         return eventos;
     }
 
+    @GetMapping("/{codigo}")
+    public ResponseEntity<Evento> findByCodigo(@PathVariable String codigo){
+        return ResponseEntity.ok(eventos
+                .stream()
+                .filter(evento -> codigo.equalsIgnoreCase(evento.getCodigo()))
+                .findAny().orElseThrow(() -> new DataNotFoundException("Objeto não encontrado")));
+    }
+
     @PostMapping
     public ResponseEntity credenciar(@RequestBody Ficha ficha){
-        logger.info("credenciar no microservice: "+ url.montar("ATOMFICHA","/atomficha/api/fichas"));
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<Ficha> request = new HttpEntity<>(ficha);
-        ResponseEntity response = restTemplate
-                .postForEntity(url.montar("ATOMFICHA","/atomficha/api/fichas"), request, Boolean.class);
-        return response;
+        logger.info("credenciar no microservice: ");
+        return ResponseEntity.ok(this.atomFichaService.post(ficha));
     }
 
 }

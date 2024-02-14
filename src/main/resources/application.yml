@@ -1,7 +1,16 @@
 spring:
   application:
-    name: atomcongresso
+    name: '@project.name@'
   profiles:
     active: local
   config:
-    import: optional:configserver:http://configserver:8888
+    import: optional:configserver:http://${CONFIG_SERVER_HOST:localhost}:8888
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
