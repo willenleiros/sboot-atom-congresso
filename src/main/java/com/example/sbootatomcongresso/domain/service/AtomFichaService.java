@@ -51,21 +51,21 @@ public class AtomFichaService extends AbstractHttpService<Ficha, JsonNode> {
         final String PROTOCOLO = "http://";
         final String SEPARATION_PORT = ":";
         final String APPLICATION_NAME = "ATOM-FICHA";
-        final String URI = "/atom-ficha/api/fichas";
+        final String URI = "/api/fichas";
 
         InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka(APPLICATION_NAME, false);
         logger.info(instanceInfo.toString());
         if(applicationProperties.getDocker().getEnabled())
             return PROTOCOLO+
-                    instanceInfo.getVIPAddress()+
+                    instanceInfo.getInstanceId()+
                     SEPARATION_PORT+
-                    instanceInfo.getMetadata().get("management.port")+
+                    instanceInfo.getMetadata().get("port")+
                     URI;
         else
             return PROTOCOLO+
                     instanceInfo.getIPAddr()+
                     SEPARATION_PORT+
-                    instanceInfo.getMetadata().get("management.port")+
+                    instanceInfo.getMetadata().get("port")+
                     URI;
     }
 }

@@ -28,8 +28,8 @@ public class WebSecurityConfig {
                 .requestMatchers(SWAGGER_PAGES).permitAll()
                 .requestMatchers(HttpMethod.GET,AUTH_WHITELIST).permitAll()
                 .requestMatchers(HttpMethod.POST,"/actuator/refresh").permitAll()
-                .requestMatchers("/atom-congresso/api/eventos").hasRole(USER)
-                .requestMatchers("/atom-congresso/api/users").hasRole(ADMIN)
+                .requestMatchers("/api/eventos/**").hasRole(USER)
+                .requestMatchers("/api/users").hasRole(ADMIN)
                 .anyRequest().denyAll());
 
         http.oauth2ResourceServer(oauth2 -> oauth2

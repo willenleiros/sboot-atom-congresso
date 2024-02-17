@@ -1,5 +1,6 @@
 package com.example.sbootatomcongresso.api.controller;
 
+import com.example.sbootatomcongresso.api.feign.FichaClient;
 import com.example.sbootatomcongresso.domain.service.AtomFichaService;
 import com.example.sbootatomcongresso.domain.model.Evento;
 import com.example.sbootatomcongresso.domain.model.Ficha;
@@ -12,15 +13,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("${spring.application.name}/api/eventos")
+@RequestMapping("/api/eventos")
 public class EventoController {
 
     private List<Evento> eventos;
     Logger logger = LoggerFactory.getLogger(EventoController.class);
     private final AtomFichaService atomFichaService;
 
-    public EventoController(AtomFichaService atomFichaService){
+    private final FichaClient fichaClient;
+
+    public EventoController(AtomFichaService atomFichaService, FichaClient fichaClient){
         this.atomFichaService = atomFichaService;
+        this.fichaClient = fichaClient;
         this.eventos = List.of(
                 new Evento("MR01","Mesa redonda",10L),
                 new Evento("PA01","Palestra",3L));
@@ -42,7 +46,7 @@ public class EventoController {
     @PostMapping
     public ResponseEntity credenciar(@RequestBody Ficha ficha){
         logger.info("credenciar no microservice: ");
-        return ResponseEntity.ok(this.atomFichaService.post(ficha));
+        return ResponseEntity.ok(this.fichaClient.credenciar(ficha));
     }
 
 }
