@@ -44,9 +44,9 @@ public class EventoController {
     }
 
     @PostMapping
-    public ResponseEntity credenciar(@RequestBody Ficha ficha){
+    public ResponseEntity<List<Ficha>> credenciar(@RequestBody Ficha ficha){
         logger.info("credenciar no microservice: ");
-        return ResponseEntity.ok(this.fichaClient.credenciar(ficha));
+        return this.fichaClient.credenciar(ficha);
     }
 
 }
