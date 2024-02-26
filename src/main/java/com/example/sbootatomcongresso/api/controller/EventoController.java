@@ -1,15 +1,16 @@
 package com.example.sbootatomcongresso.api.controller;
 
 import com.example.sbootatomcongresso.api.feign.FichaClient;
-import com.example.sbootatomcongresso.domain.service.AtomFichaService;
 import com.example.sbootatomcongresso.domain.model.Evento;
 import com.example.sbootatomcongresso.domain.model.Ficha;
 import com.example.sbootatomcongresso.infrastructure.exception.DataNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -17,14 +18,13 @@ import java.util.List;
 public class EventoController {
 
     private List<Evento> eventos;
-    Logger logger = LoggerFactory.getLogger(EventoController.class);
-    private final AtomFichaService atomFichaService;
-
+    private Logger logger = LoggerFactory.getLogger(EventoController.class);
     private final FichaClient fichaClient;
+    private final KafkaTemplate kafkaTemplate;
 
-    public EventoController(AtomFichaService atomFichaService, FichaClient fichaClient){
-        this.atomFichaService = atomFichaService;
+    public EventoController(FichaClient fichaClient, KafkaTemplate kafkaTemplate){
         this.fichaClient = fichaClient;
+        this.kafkaTemplate = kafkaTemplate;
         this.eventos = List.of(
                 new Evento("MR01","Mesa redonda",10L),
                 new Evento("PA01","Palestra",3L));
@@ -47,6 +47,14 @@ public class EventoController {
     public ResponseEntity<List<Ficha>> credenciar(@RequestBody Ficha ficha){
         logger.info("credenciar no microservice: ");
         return this.fichaClient.credenciar(ficha);
+    }
+
+    @PostMapping("/kafka/send")
+    public ResponseEntity<String> kafkaSend(@RequestBody Ficha ficha){
+        logger.info("produce msg: {}",ficha);
+        this.kafkaTemplate.send("ficha_topic",
+                String.format("%s -> %s",LocalDateTime.now(),ficha.toString()));
+        return ResponseEntity.ok("");
     }
 
 }

@@ -26,7 +26,7 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests((authorize) -> authorize
                 .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                 .requestMatchers(SWAGGER_PAGES).permitAll()
-                .requestMatchers(HttpMethod.GET,AUTH_WHITELIST).permitAll()
+                .requestMatchers(HttpMethod.GET,"/atom-congresso/api/users/anonymous").permitAll()
                 .requestMatchers(HttpMethod.POST,"/actuator/refresh").permitAll()
                 .requestMatchers("/atom-congresso/api/eventos").hasRole(USER)
                 .requestMatchers("/atom-congresso/api/users").hasRole(ADMIN)
@@ -48,7 +48,8 @@ public class WebSecurityConfig {
     }
 
     private static final String[] AUTH_WHITELIST = {
-            "/atom-congresso/api/users/anonymous"
+            "/atom-congresso/api/users/anonymous",
+            "/atom-congresso/api/eventos/kafka/send"
     };
 
     private static final String[] SWAGGER_PAGES = {
